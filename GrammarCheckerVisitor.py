@@ -97,13 +97,26 @@ class GrammarCheckerVisitor(ParseTreeVisitor):
             token = ctx.identifier(i).IDENTIFIER().getPayload()
             if ctx.expression(i) != None:
                 #print(ctx.expression(i).getText())
+                print("EXPRESSÃO")
+                print(len(ctx.expression(i).expression()))
+                cte_value = None
+                if len(ctx.expression(i).expression()) == 0:
+                    print("TAMANHO ZERO")
+                    if ctx.expression(i).integer() != None:
+                        cte_value = int(ctx.expression(i).integer().getText())
+                        print(cte_value)
+
+                    elif ctx.expression(i).floating() != None:
+                        cte_value = float(ctx.expression(i).floating().getText())
+                        print(cte_value)
+
                 expr_type = self.visit(ctx.expression(i))
                 if expr_type == Type.VOID or expr_type == Type.STRING:
                     print("ERROR: trying to assign '" + expr_type + "' expression to variable '" + name + "' in line " + str(token.line) + " and column " + str(token.column))
                 elif expr_type == Type.FLOAT and tyype == Type.INT:
                     print("WARNING: possible loss of information assigning float expression to int variable '" + name + "' in line " + str(token.line) + " and column " + str(token.column))
                 #print("noExpr")
-            self.ids_defined[name] = tyype, -1 # -1 means not a array, therefore no length here (vide 15 lines below)
+            self.ids_defined[name] = tyype, -1, cte_value # -1 means not a array, therefore no length here (vide 15 lines below)
 
         for i in range(len(ctx.array())):
             name = ctx.array(i).identifier().getText()
@@ -146,7 +159,19 @@ class GrammarCheckerVisitor(ParseTreeVisitor):
 
 
         if ctx.expression() != None:
+            print("EXPRESSÃO")
+            print(len(ctx.expression().expression()))
+            if len(ctx.expression().expression()) == 0:
+                print("TAMANHO ZERO")
+                if ctx.expression().expression().integer() != None:
+                    cte_value = int(ctx.expression().expression().integer().getText())
+                    print(cte_value)
+
+                elif ctx.expression().expression().floating() != None:
+                    cte_value = float(ctx.expression().expression().floating().getText())
+                    print(cte_value)
             expr_type = self.visit(ctx.expression())
+
             if expr_type == Type.VOID or expr_type == Type.STRING:
                 print("ERROR: trying to assign '" + expr_type + "' expression to variable '" + name + "' in line " + str(token.line) + " and column " + str(token.column))
             elif expr_type == Type.FLOAT and tyype == Type.INT:
